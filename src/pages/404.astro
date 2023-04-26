@@ -1,0 +1,42 @@
+---
+Astro.response.status = 503;
+---
+
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="generator" content={Astro.generator} />
+    <title>Техработы - Вместе</title>
+    <meta name="robots" content="noindex" />
+  </head>
+  <body>
+    <p
+      class="absolute top-80 right-0 left-0 -z-10 text-center text-[12rem] font-bold text-black opacity-5 lg:top-32 lg:text-[25rem]"
+    >
+      503
+    </p>
+    <div class="relative mx-auto mt-44 max-w-xl space-y-6 text-center">
+      <img
+        src="/logo.svg"
+        width="150"
+        height="154.2"
+        class="mx-auto"
+        alt="Логотип проекта. Минималистичный рисунок трех птиц разных цветов, летящих вверх. Снизу от них надпись 'Вместе'"
+      />
+      <h1 class="text-2xl">Техработы</h1>
+      <p>Наша команда прямо сейчас работает над улучшением работы сайта. Спасибо за понимание.</p>
+      <p>
+        Вы можете подождать и попробовать снова. Также наши Telegram чаты работают всегда вне
+        зависимости от доступности сайта.
+      </p>
+      <a
+        href="/telegram"
+        class="flex items-center justify-center rounded-lg border border-[#3981EE] bg-white py-2 text-[#3981EE] transition-opacity hover:border-[#2273EC] hover:text-[#2273EC] mx-auto w-max px-12"
+      >
+        Telegram чаты {'"Вместе"'}
+      </a>
+    </div>
+  </body>
+</html>

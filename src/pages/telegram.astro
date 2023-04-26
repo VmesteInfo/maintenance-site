@@ -1,0 +1,88 @@
+---
+Astro.response.status = 503;
+
+import ws from 'ws';
+import { neonConfig, Pool } from '@neondatabase/serverless';
+neonConfig.webSocketConstructor = ws;
+
+const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+
+const { rows } = await pool.query<{
+  id: string;
+  link: string;
+  country: string | null;
+  city: string;
+}>(
+  `SELECT 
+    t."id", 
+    t."link",
+    lc."name" country,
+    l."name" city
+  FROM "location_telegram_links" t 
+  JOIN "location" l ON l."id" = t."locationId" 
+  LEFT JOIN "location" lc ON l."parentId" = lc."id";`
+);
+
+const countries = rows.length
+  ? rows
+      .filter(chat => !chat.country)
+      .map(chat => ({
+        id: chat.id,
+        name: chat.city,
+        link: chat.link,
+        cities: rows
+          .filter(c => c.country === chat.city)
+          .map(chat => ({
+            id: chat.id,
+            name: chat.city,
+            link: chat.link,
+          })),
+      }))
+  : [];
+---
+
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="generator" content={Astro.generator} />
+    <title>Техработы - Вместе</title>
+    <meta name="robots" content="noindex" />
+  </head>
+  <body>
+    <main class="container mx-auto space-y-4">
+      <h1 class="text-2xl font-bold text-black mt-5">
+        Вместе - Наша сеть Телеграм чатов
+      </h1>
+      <div class="sm:columns-2 md:columns-3 lg:columns-5 text-[#3F5FF1]">
+        {
+          countries.map(chat => (
+            <div>
+              <a
+                href={chat.link}
+                class="underline inline-block text-xl font-semibold"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {chat.name}
+              </a>
+              {chat.cities.map(chat => (
+                <div>
+                  <a
+                    href={chat.link}
+                    target="_blank"
+                    class="underline ml-4 inline-block"
+                    rel="noopener noreferrer"
+                  >
+                    {chat.name}
+                  </a>
+                </div>
+              ))}
+            </div>
+          ))
+        }
+      </div>
+    </main>
+  </body>
+</html>
