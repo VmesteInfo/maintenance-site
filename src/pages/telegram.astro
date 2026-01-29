@@ -5,7 +5,7 @@ import ws from 'ws';
 import { neonConfig, Pool } from '@neondatabase/serverless';
 neonConfig.webSocketConstructor = ws;
 
-const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+const pool = new Pool({ connectionString: import.meta.env.DATABASE_URL });
 
 const { rows } = await pool.query<{
   id: string;
@@ -13,13 +13,13 @@ const { rows } = await pool.query<{
   country: string | null;
   city: string;
 }>(
-  `SELECT 
-    t."id", 
+  `SELECT
+    t."id",
     t."link",
     lc."name" country,
     l."name" city
-  FROM "location_telegram_links" t 
-  JOIN "location" l ON l."id" = t."locationId" 
+  FROM "location_telegram_links" t
+  JOIN "location" l ON l."id" = t."locationId"
   LEFT JOIN "location" lc ON l."parentId" = lc."id";`
 );
 
@@ -36,8 +36,10 @@ const countries = rows.length
             id: chat.id,
             name: chat.city,
             link: chat.link,
-          })),
+          }))
+          .sort((a, b) => a.name.localeCompare(b.name)),
       }))
+      .sort((a, b) => a.name.localeCompare(b.name))
   : [];
 ---
 
@@ -51,11 +53,14 @@ const countries = rows.length
     <meta name="robots" content="noindex" />
   </head>
   <body>
-    <main class="container mx-auto space-y-4">
-      <h1 class="text-2xl font-bold text-black mt-5">
-        Вместе - Наша сеть Телеграм чатов
+    <main class="container mx-auto space-y-4 px-4 pb-8">
+      <h1 class="text-2xl font-bold text-black mt-5 flex items-center gap-3">
+        <a href="/">
+          <img src="/logo.svg" alt="Вместе" class="h-16" />
+        </a>
+        Наша сеть Телеграм чатов
       </h1>
-      <div class="sm:columns-2 md:columns-3 lg:columns-5 text-[#3F5FF1]">
+      <div class="sm:columns-2 md:columns-3 lg:columns-5 text-[#3981ee]">
         {
           countries.map(chat => (
             <div>
