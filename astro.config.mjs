@@ -4,7 +4,6 @@ import tailwind from "@astrojs/tailwind";
 
 // https://astro.build/config
 export default defineConfig({
-  site: 'https://VmesteAdmin.github.io',
-  base: '/maintenance-site',
+  site: 'https://vmeste.info',
   integrations: [tailwind()],
 });
