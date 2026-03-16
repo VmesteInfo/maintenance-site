@@ -1,27 +1,37 @@
 ---
 Astro.response.status = 503;
 
-import ws from 'ws';
-import { neonConfig, Pool } from '@neondatabase/serverless';
-neonConfig.webSocketConstructor = ws;
+type Row = { id: string; link: string; country: string | null; city: string };
 
-const pool = new Pool({ connectionString: import.meta.env.DATABASE_URL });
+import fallbackData from '../data/telegram-links.json';
 
-const { rows } = await pool.query<{
-  id: string;
-  link: string;
-  country: string | null;
-  city: string;
-}>(
-  `SELECT
-    t."id",
-    t."link",
-    lc."name" country,
-    l."name" city
-  FROM "location_telegram_links" t
-  JOIN "location" l ON l."id" = t."locationId"
-  LEFT JOIN "location" lc ON l."parentId" = lc."id";`
-);
+let rows: Row[];
+
+if (import.meta.env.DATABASE_URL) {
+  try {
+    const ws = (await import('ws')).default;
+    const { neonConfig, Pool } = await import('@neondatabase/serverless');
+    neonConfig.webSocketConstructor = ws;
+
+    const pool = new Pool({ connectionString: import.meta.env.DATABASE_URL });
+
+    const result = await pool.query<Row>(
+      `SELECT
+        t."id",
+        t."link",
+        lc."name" country,
+        l."name" city
+      FROM "location_telegram_links" t
+      JOIN "location" l ON l."id" = t."locationId"
+      LEFT JOIN "location" lc ON l."parentId" = lc."id";`
+    );
+    rows = result.rows;
+  } catch {
+    rows = fallbackData as Row[];
+  }
+} else {
+  rows = fallbackData as Row[];
+}
 
 const countries = rows.length
   ? rows
